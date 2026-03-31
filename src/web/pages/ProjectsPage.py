@@ -1,6 +1,6 @@
 from playwright.sync_api import Page, expect
 
-from src.web.components.ProjectCardComponent import ProjectCardComponent
+from src.web.components import ProjectCardComponent
 
 
 # AI generated
@@ -56,7 +56,7 @@ class ProjectsPage:
         return [ProjectCardComponent(visible_projects.nth(i)) for i in range(count)]
 
     def get_project_by_title(self, title: str) -> ProjectCardComponent | None:
-
+        expect(self.page.locator("h3", has_text=title).first).to_be_visible()
         for project in self.get_all_projects():
             project_title = project.get_title()
             if project_title and title in project_title:

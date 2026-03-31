@@ -1,20 +1,23 @@
 from faker.proxy import Faker
-from playwright.sync_api import Page
 
-from src.web.pages.NewProjectsPage import NewProjectsPage
-from src.web.pages.ProjectPage import ProjectPage
+from src.web.App import App
 
 
-def test_new_projects_creation(page: Page, login):
+def test_new_projects_creation(app: App, login):
     target_project_name = Faker().company()
 
-    (NewProjectsPage(page)
+    (app.new_projects_page
      .open()
      .is_loaded()
      .fill_project_title(target_project_name)
      .click_create())
 
-    (ProjectPage(page)
+    (app.project_page
      .is_loaded()
      .close_read_me()
      .empty_project_name_is(target_project_name))
+
+    (app.project_page.side_bar
+     .expand()
+     .is_loaded()
+     .tab_is_active("Tests"))
