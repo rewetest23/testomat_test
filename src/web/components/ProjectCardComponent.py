@@ -7,24 +7,24 @@ from playwright.sync_api import Locator, expect
 class ProjectCardComponent:
 
     def __init__(self, root_locator: Locator):
-        self.root = root_locator
+        self.__root = root_locator
 
-        self.link = self.root.locator("a")
-        self.title = self.root.locator("h3")
-        self.test_count = self.root.locator("p.text-gray-500")
-        self.badges = self.root.locator(".project-badges")
+        self.__link = self.__root.locator("a")
+        self.__title = self.__root.locator("h3")
+        self.__test_count = self.__root.locator("p").filter(has_text="tests")
+        self.__badges = self.__root.locator(".project-badges")
 
     def get_title(self) -> str:
-        return self.title.inner_text()
+        return self.__title.inner_text()
 
     def get_test_count_text(self) -> str:
-        return self.test_count.inner_text()
+        return self.__test_count.inner_text()
 
     def badges_has(self, expected_badge: Badges):
-        expect(self.badges).to_contain_text(expected_badge.value)
+        expect(self.__badges).to_contain_text(expected_badge.value)
 
     def click(self):
-        self.link.click()
+        self.__link.click()
 
 
 class Badges(Enum):

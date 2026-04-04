@@ -1,4 +1,3 @@
-import re
 from typing import Self
 
 from playwright.sync_api import Page, expect
@@ -7,43 +6,44 @@ from playwright.sync_api import Page, expect
 class NewRequirementComponent:
     def __init__(self, page: Page):
         self.page = page
-        self.root = page.locator(".detail-view-resizable:not(#_clone)")
-        
+
         # Header actions
-        self.__close_button = self.root.locator(".detail-view-actions").get_by_role("button")
-        self.__back_button = self.root.locator(".back").get_by_role("button")
-        
+        self.__close_button = self.page.locator(".detail-view-actions").get_by_role("button")
+        self.__back_button = self.page.locator(".back").get_by_role("button")
+
+        self.__root = page.locator(".detail-view-content")
+
         # Tabs
-        self.__tab_jira = self.root.get_by_role("tab", name=re.compile(r"Jira", re.IGNORECASE))
-        self.__tab_confluence = self.root.get_by_role("tab", name=re.compile(r"Confluence", re.IGNORECASE))
-        self.__tab_file = self.root.get_by_role("tab", name=re.compile(r"File", re.IGNORECASE))
-        self.__tab_text = self.root.get_by_role("tab", name=re.compile(r"Text", re.IGNORECASE))
-        
-        self.__active_tab_panel = self.root.locator("li[role='tabpanel'].active")
-        
+        self.__tab_jira = self.__root.get_by_role("tab", name="Jira")
+        self.__tab_confluence = self.__root.get_by_role("tab", name="Confluence")
+        self.__tab_file = self.__root.get_by_role("tab", name="File")
+        self.__tab_text = self.__root.get_by_role("tab", name="Text")
+
+        self.__active_tab_panel = self.__root.locator("li[role='tabpanel'].active")
+
         # Common Form Elements within active tab
         self.__title_input = self.__active_tab_panel.locator("input[name='requirement[title]']")
-        
+
         # Text Tab specific
         self.__description_textarea = self.__active_tab_panel.locator("textarea[name='requirement[description]']")
-        
+
         # File Tab specific
-        self.__file_input = self.__active_tab_panel.locator("input[type='file']")
-        
+        self.__file_input = self.__active_tab_panel.locator("#upload-image")
+
         # Actions
-        self.__save_button = self.__active_tab_panel.get_by_role("button", name=re.compile(r"Save", re.IGNORECASE))
-        self.__cancel_button = self.__active_tab_panel.get_by_role("button", name=re.compile(r"Cancel", re.IGNORECASE))
-        
+        self.__save_button = self.__active_tab_panel.get_by_role("button", name="Save")
+        self.__cancel_button = self.__active_tab_panel.get_by_role("button", name="Cancel")
+
         # Tooltip
-        self.__tooltip = page.get_by_role("tooltip")
+        self.__tooltip = self.page.get_by_role("tooltip")
 
     def is_loaded(self) -> Self:
-        expect(self.root).to_be_visible()
-        expect(self.root.get_by_role("heading", name="New Requirement")).to_be_visible()
+        expect(self.__root).to_be_visible()
+        expect(self.__root.get_by_role("heading", name="New Requirement")).to_be_visible()
         return self
 
     def is_hidden(self) -> Self:
-        expect(self.root).to_be_hidden()
+        expect(self.__root).to_be_hidden()
         return self
 
     def click_close(self) -> Self:
