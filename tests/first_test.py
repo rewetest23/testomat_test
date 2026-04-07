@@ -23,7 +23,7 @@ def test_login_error_wrong_password(page: Page, configs: Config):
     login_user(page, configs.email, Faker().password(length=10))
 
     expect(page.locator("#content-desktop").get_by_text("Invalid Email or password.")).to_be_visible()
-    expect(page.locator("#content-desktop .common-flash-info")).to_have_text("Invalid Email or password.")
+    expect(page.locator("#content-desktop .common-flash-info")).to_have_text("Invalid email or password.")
 
 
 def test_successful_login(page: Page, login):
@@ -110,7 +110,7 @@ def search_for_project(page: Page, target_project: str):
 
 def open_home_page(page: Page, configs: Config):
     page.goto(configs.base_url)
-    expect(page).to_have_title("AI Test Management Tool | Testomat.io")
+    expect(page).to_have_title("AI Test Management Solutions & Automated Testing Tool | Testomat")
 
 
 def login_user(page: Page, email: str, password: str):
