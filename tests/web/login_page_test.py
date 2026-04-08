@@ -24,10 +24,12 @@ invalid_login_data = [
 @pytest.mark.regression
 @pytest.mark.parametrize("email, password", invalid_login_data)
 def test_login_invalid(shared_app: App, email: str, password: str):
+    shared_app.login_page.wait_if_rate_limit(5000)
     shared_app.login_page.open()
     shared_app.login_page.is_loaded()
     shared_app.login_page.login_user(email, password)
     shared_app.login_page.invalid_login_message_visible()
+
 
 
 @pytest.mark.regression

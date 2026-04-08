@@ -27,4 +27,7 @@ class LoginPage:
     def invalid_login_message_visible(self):
         expect(self.page.locator("#content-desktop").get_by_text("Invalid Email or password.")).to_be_visible()
 
-
+    def wait_if_rate_limit(self, wait_ms: int):
+        rate_limit_text = self.page.get_by_text("Rate Limit Reached")
+        if rate_limit_text.is_visible():
+            self.page.wait_for_timeout(wait_ms)
