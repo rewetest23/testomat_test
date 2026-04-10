@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Page, Browser, BrowserContext
+from faker import Faker
+
 
 from src.web.app import App
 
@@ -17,6 +19,11 @@ class Config:
     sign_in_url: str
     email: str
     password: str
+
+
+@pytest.fixture(scope="session")
+def faker():
+    return Faker()
 
 
 @pytest.fixture(scope="session")

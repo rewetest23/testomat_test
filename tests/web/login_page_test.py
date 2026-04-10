@@ -34,11 +34,13 @@ def test_login_invalid(shared_app: App, email: str, password: str):
 
 @pytest.mark.regression
 def test_login_valid_password(app: App, configs: Config):
-    app.home_page.open()
-    app.home_page.is_loaded()
-    app.home_page.click_login()
+    (app.home_page
+     .open()
+     .is_loaded()
+     .click_login())
 
-    app.login_page.is_loaded()
-    app.login_page.login_user(configs.email, configs.password)
+    (app.login_page
+     .is_loaded()
+     .login_user(configs.email, configs.password))
 
     app.projects_page.is_loaded()
