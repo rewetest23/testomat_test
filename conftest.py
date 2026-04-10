@@ -3,9 +3,8 @@ from dataclasses import dataclass
 
 import pytest
 from dotenv import load_dotenv
-from playwright.sync_api import Page, Browser, BrowserContext
 from faker import Faker
-
+from playwright.sync_api import Page, Browser, BrowserContext
 
 from src.web.app import App
 
@@ -116,7 +115,7 @@ def shared_app(_shared_context: tuple[BrowserContext, Page]) -> App:
 # ---------------------------------------------------------------------------
 @pytest.fixture(scope="function")
 def logged_in_app(
-    browser: Browser, browser_context_args: dict, configs: Config) -> App:
+        browser: Browser, browser_context_args: dict, configs: Config) -> App:
     """Fresh App instance that is already logged in."""
     context, page = _create_context_and_page(browser, browser_context_args)
     app = App(page)

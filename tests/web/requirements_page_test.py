@@ -1,7 +1,7 @@
 from src.web.app import App
 
 
-def test_fields_validation_new_text_requirement_in_new_project(shared_logged_in_app: App, login, faker):
+def test_fields_validation_new_text_requirement_in_new_project(shared_logged_in_app: App, faker):
     app = shared_logged_in_app
     target_project_name = faker.company()
 
@@ -33,7 +33,7 @@ def test_fields_validation_new_text_requirement_in_new_project(shared_logged_in_
      .save_button_is_disabled())
 
 
-def test_close_new_requirement_panel(shared_logged_in_app: App, login, faker):
+def test_close_new_requirement_panel(shared_logged_in_app: App, faker):
     app = shared_logged_in_app
     target_project_name = faker.company()
 
@@ -80,7 +80,7 @@ def test_close_new_requirement_panel(shared_logged_in_app: App, login, faker):
      .is_hidden())
 
 
-def test_create_requirement(shared_logged_in_app: App, login, faker):
+def test_create_requirement(shared_logged_in_app: App, faker):
     app = shared_logged_in_app
     target_project_name = faker.company()
     requirement_title = faker.catch_phrase()
