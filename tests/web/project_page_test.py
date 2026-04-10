@@ -2,7 +2,8 @@ from src.web.App import App
 from src.web.components.ProjectCardComponent import Badges
 
 
-def test_projects_page_header(app: App, login):
+def test_projects_page_header(shared_logged_in_app: App):
+    app = shared_logged_in_app
     app.projects_page.navigate()
 
     app.projects_page.is_loaded()

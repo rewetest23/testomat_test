@@ -3,7 +3,8 @@ from faker.proxy import Faker
 from src.web.App import App
 
 
-def test_new_projects_creation(app: App, login):
+def test_new_projects_creation(shared_logged_in_app: App):
+    app = shared_logged_in_app
     target_project_name = Faker().company()
 
     (app.new_projects_page

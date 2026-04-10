@@ -3,7 +3,8 @@ from faker.proxy import Faker
 from src.web.App import App
 
 
-def test_fields_validation_new_text_requirement_in_new_project(app: App, login):
+def test_fields_validation_new_text_requirement_in_new_project(shared_logged_in_app: App):
+    app = shared_logged_in_app
     target_project_name = Faker().company()
 
     (app.new_projects_page
@@ -34,7 +35,8 @@ def test_fields_validation_new_text_requirement_in_new_project(app: App, login):
      .save_button_is_disabled())
 
 
-def test_close_new_requirement_panel(app: App, login):
+def test_close_new_requirement_panel(shared_logged_in_app: App):
+    app = shared_logged_in_app
     target_project_name = Faker().company()
 
     (app.new_projects_page
@@ -80,7 +82,8 @@ def test_close_new_requirement_panel(app: App, login):
      .is_hidden())
 
 
-def test_create_requirement(app: App, login):
+def test_create_requirement(shared_logged_in_app: App):
+    app = shared_logged_in_app
     fake = Faker()
     target_project_name = fake.company()
     requirement_title = fake.catch_phrase()
@@ -143,7 +146,8 @@ def test_create_requirement(app: App, login):
      .requirement_is_in_list(requirement_title))
 
 
-def test_search_and_open_requirement(app: App, login):
+def test_search_and_open_requirement(shared_logged_in_app: App):
+    app = shared_logged_in_app
     project_name = "Gray Group"
     requirement_title = "Expanded asymmetric synergy"
 

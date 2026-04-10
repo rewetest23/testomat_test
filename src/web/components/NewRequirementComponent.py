@@ -39,7 +39,7 @@ class NewRequirementComponent:
 
     def is_loaded(self) -> Self:
         expect(self.__root).to_be_visible()
-        expect(self.__root.get_by_role("heading", name="New Requirement")).to_be_visible()
+        expect(self.page.get_by_role("heading", name="New Requirement")).to_be_visible()
         return self
 
     def is_hidden(self) -> Self:
