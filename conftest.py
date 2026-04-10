@@ -5,7 +5,7 @@ import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Page, Browser, BrowserContext
 
-from src.web.App import App
+from src.web.app import App
 
 load_dotenv()
 

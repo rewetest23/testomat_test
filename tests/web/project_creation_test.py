@@ -1,6 +1,6 @@
 from faker.proxy import Faker
 
-from src.web.App import App
+from src.web.app import App
 
 
 def test_new_projects_creation(shared_logged_in_app: App):

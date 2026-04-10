@@ -2,7 +2,7 @@ import pytest
 from faker import Faker
 
 from conftest import Config
-from src.web.App import App
+from src.web.app import App
 
 fake = Faker()
 

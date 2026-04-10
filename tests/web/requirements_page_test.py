@@ -1,6 +1,6 @@
 from faker.proxy import Faker
 
-from src.web.App import App
+from src.web.app import App
 
 
 def test_fields_validation_new_text_requirement_in_new_project(shared_logged_in_app: App):
