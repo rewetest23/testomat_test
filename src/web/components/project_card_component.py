@@ -4,6 +4,12 @@ from typing import Self
 from playwright.sync_api import Locator, expect
 
 
+class Badges(Enum):
+    DEMO = "Demo"
+    CLASSICAL = "Classical"
+    TEST = "Test"
+
+
 # AI generated
 class ProjectCardComponent:
 
@@ -28,9 +34,3 @@ class ProjectCardComponent:
     def click(self) -> Self:
         self._link.click()
         return self
-
-
-class Badges(Enum):
-    DEMO = "Demo"
-    CLASSICAL = "Classical"
-    TEST = "Test"
