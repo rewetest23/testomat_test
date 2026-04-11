@@ -1,0 +1,27 @@
+# ruff.toml
+
+# Target Python version
+target-version = "py314"
+
+# The line length to use when enforcing long-lines violations.
+line-length = 120
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "test-result",
+]
+
+[lint]
+# Enable Pyflakes (F) and a subset of the pycodestyle (E)  codes by default.
+# Also enable isort (I) and pyupgrade (UP).
+select = ["E", "F", "I", "UP"]
+
+# Ignore rules (if any)
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
