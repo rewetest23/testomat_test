@@ -8,15 +8,15 @@ from fixtures.config import Config
 def browser_type_launch_args(browser_type_launch_args: dict) -> dict:
     return {
         **browser_type_launch_args,
-        "channel": "chrome",
         "headless": False,
         "slow_mo": 0,
-        "timeout": 30000,  # Timeout for Browser-Start
+        "timeout": 30000,
     }
 
 
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args: dict, configs: Config) -> dict:
+    """Inject default context args."""
     return {
         **browser_context_args,
         "base_url": configs.base_app_url,
@@ -25,7 +25,6 @@ def browser_context_args(browser_context_args: dict, configs: Config) -> dict:
         "timezone_id": "Europe/Kyiv",
         "record_video_dir": "/videos",
         "permissions": ["geolocation"],
-        "timeout": 30000,  # Standard-Action-Timeout
     }
 
 

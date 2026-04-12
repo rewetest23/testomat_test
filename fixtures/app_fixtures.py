@@ -1,8 +1,33 @@
+import os
 import pytest
 from playwright.sync_api import Page, Browser, BrowserContext
 from src.web.app import App
 from fixtures.config import Config
 from fixtures.playwright_fixtures import create_context_and_page
+
+@pytest.fixture(scope="session")
+def session_storage_state(browser: Browser, browser_context_args: dict, configs: Config) -> str:
+    """Perform login once per session using the POM and save the storage state."""
+    auth_dir = "test-result/.auth"
+    auth_path = os.path.join(auth_dir, "storage_state.json")
+    
+    # Ensure directory exists
+    os.makedirs(auth_dir, exist_ok=True)
+    
+    # Create an isolated context for login (no base storage_state here)
+    context = browser.new_context(**browser_context_args)
+    page = context.new_page()
+    app = App(page)
+    
+    app.login_page.open()
+    app.login_page.is_loaded()
+    app.login_page.login_user(configs.email, configs.password)
+    app.projects_page.is_loaded()
+    
+    # Save session state
+    context.storage_state(path=auth_path)
+    context.close()
+    return auth_path
 
 @pytest.fixture(scope="function")
 def app(page: Page) -> App:
@@ -28,24 +53,22 @@ def shared_app(_shared_context: tuple[BrowserContext, Page]) -> App:
     page.evaluate("window.sessionStorage.clear()")
 
 @pytest.fixture(scope="function")
-def logged_in_app(browser: Browser, browser_context_args: dict, configs: Config) -> App:
-    """Fresh App instance that is already logged in."""
-    context, page = create_context_and_page(browser, browser_context_args)
+def logged_in_app(browser: Browser, browser_context_args: dict, session_storage_state: str) -> App:
+    """Fresh App instance that is already logged in using storage state."""
+    # Use the pre-saved storage state
+    context_args = {**browser_context_args, "storage_state": session_storage_state}
+    context, page = create_context_and_page(browser, context_args)
     app = App(page)
-    app.login_page.open()
-    app.login_page.is_loaded()
-    app.login_page.login_user(configs.email, configs.password)
     yield app
     context.close()
 
 @pytest.fixture(scope="module")
-def shared_logged_in_app(browser: Browser, browser_context_args: dict, configs: Config) -> App:
-    """Shared App instance, logged in once for the entire module."""
-    context, page = create_context_and_page(browser, browser_context_args)
+def shared_logged_in_app(browser: Browser, browser_context_args: dict, session_storage_state: str) -> App:
+    """Shared App instance, logged in once for the entire module via storage state."""
+    # Use the pre-saved storage state
+    context_args = {**browser_context_args, "storage_state": session_storage_state}
+    context, page = create_context_and_page(browser, context_args)
     app = App(page)
-    app.login_page.open()
-    app.login_page.is_loaded()
-    app.login_page.login_user(configs.email, configs.password)
     yield app
     context.close()
 
