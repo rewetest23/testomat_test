@@ -94,3 +94,35 @@ def login(app: App, configs: Config):
     app.login_page.open()
     app.login_page.is_loaded()
     app.login_page.login_user(configs.email, configs.password)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def delete_all_single_member_projects_at_end(browser: Browser, browser_context_args: dict, session_storage_state: str):
+    yield
+
+    context_args = {**browser_context_args, "storage_state": session_storage_state}
+    context = browser.new_context(**context_args)
+    page = context.new_page()
+    app = App(page)
+
+    try:
+        app.projects_page.navigate().is_loaded().change_list_view_type_to_table()
+
+        while app.projects_page.open_first_project_with_single_member():
+            app.project_page.is_loaded()
+            app.project_page.side_bar.click_settings()
+
+            (app.project_settings_page
+             .is_loaded()
+             .delete_project())
+
+            (app.project_settings_page.side_bar
+             .expand()
+             .click_projects())
+
+            app.projects_page.is_loaded()
+
+    except Exception as e:
+        print(f"Cleanup failed: {e}")
+    finally:
+        context.close()

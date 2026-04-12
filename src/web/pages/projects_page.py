@@ -18,6 +18,7 @@ class ProjectsPage:
         self.plan_badge = page.locator(".tooltip-project-plan > span")
         self.search_input = page.locator("#search")
         self.create_button = page.get_by_role("link", name="Create")
+        self.list_view_type = page.locator(".tab-content")
         self.grid_view_button = page.locator("#grid-view")
         self.table_view_button = page.locator("#table-view")
 
@@ -76,3 +77,35 @@ class ProjectsPage:
             if project_title and title in project_title:
                 return project
         return None
+
+    def change_list_view_type_to_grid(self) -> Self:
+        if self.list_view_type.get_attribute("id") == "table":
+            self.grid_view_button.click()
+
+        expect(self.list_view_type).to_have_attribute("id", "grid")
+        return self
+
+    def change_list_view_type_to_table(self) -> Self:
+        if self.list_view_type.get_attribute("id") == "grid":
+            self.table_view_button.click()
+
+        expect(self.list_view_type).to_have_attribute("id", "table")
+        return self
+
+    def open_first_project_with_single_member(self) -> bool:
+        rows = self.page.locator("tbody tr")
+
+        try:
+            rows.first.wait_for(state="visible", timeout=3000)
+        except TimeoutError:
+            return False
+
+        for i in range(rows.count()):
+            row = rows.nth(i)
+            member_images = row.locator("td div img")
+
+            if member_images.count() == 1:
+                row.locator("a").first.click()
+                return True
+
+        return False
