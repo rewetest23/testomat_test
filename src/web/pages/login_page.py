@@ -6,7 +6,7 @@ class LoginPage:
     def __init__(self, page: Page):
         self.page = page
 
-        self._remember_checkbox = page.get_by_label("Remember me") # CSS: page.locator("#user_remember_me")
+        self.remember_checkbox = page.get_by_label("Remember me") # CSS: page.locator("#user_remember_me")
 
 
     def open(self) -> Self:
@@ -23,7 +23,7 @@ class LoginPage:
         self.page.locator("#content-desktop #user_password").fill(password)
 
         if remember_me:
-            self._remember_checkbox.check()
+            self.remember_checkbox.check()
 
         self.page.get_by_role("button", name="Sign In").click()
         return self

@@ -14,23 +14,23 @@ class Badges(Enum):
 class ProjectCardComponent:
 
     def __init__(self, root_locator: Locator):
-        self._root = root_locator
+        self.root = root_locator
 
-        self._link = self._root.locator("a")
-        self._title = self._root.locator("h3")
-        self._test_count = self._root.locator("p").filter(has_text="tests")
-        self._badges = self._root.locator(".project-badges")
+        self.link = self.root.locator("a")
+        self.title = self.root.locator("h3")
+        self.test_count = self.root.locator("p").filter(has_text="tests")
+        self.badges = self.root.locator(".project-badges")
 
     def get_title(self) -> str:
-        return self._title.inner_text()
+        return self.title.inner_text()
 
     def get_test_count_text(self) -> str:
-        return self._test_count.inner_text()
+        return self.test_count.inner_text()
 
     def badges_has(self, expected_badge: Badges) -> Self:
-        expect(self._badges).to_contain_text(expected_badge.value)
+        expect(self.badges).to_contain_text(expected_badge.value)
         return self
 
     def click(self) -> Self:
-        self._link.click()
+        self.link.click()
         return self
