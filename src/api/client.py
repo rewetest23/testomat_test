@@ -30,3 +30,27 @@ class ApiClient:
             raise RuntimeError(f"Failed to get projects: {response.status_code} - {response.text}")
             
         return response.json()
+
+    def get_project_users(self, project_id: str) -> list:
+        """Get all users for a specific project. Requires authentication."""
+        if not self.jwt:
+            raise ValueError("Not authenticated. Please call login_with_api_token() first.")
+            
+        url = f"{self.base_url}/api/{project_id}/users"
+        response = self.session.get(url)
+        
+        if not response.ok:
+            raise RuntimeError(f"Failed to get users for project {project_id}: {response.status_code} - {response.text}")
+            
+        return response.json().get("data", [])
+
+    def delete_project(self, project_id: str) -> None:
+        """Delete a specific project by its ID. Requires authentication."""
+        if not self.jwt:
+            raise ValueError("Not authenticated. Please call login_with_api_token() first.")
+            
+        url = f"{self.base_url}/api/projects/{project_id}"
+        response = self.session.delete(url)
+        
+        if not response.ok:
+            raise RuntimeError(f"Failed to delete project {project_id}: {response.status_code} - {response.text}")

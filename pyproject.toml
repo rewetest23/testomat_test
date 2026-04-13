@@ -37,7 +37,8 @@ markers = [
     "smoke: Quick smoke tests for basic functionality",
     "regression: Full regression test suite",
     "web: Web UI tests using Playwright",
-    "slow: Tests that take longer to execute"
+    "slow: Tests that take longer to execute",
+    "api: API Tests"
 ]
 console_output_style = "progress"
 log_cli = true
