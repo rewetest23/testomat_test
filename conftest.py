@@ -3,4 +3,5 @@ pytest_plugins = [
     "fixtures.faker_fixtures",
     "fixtures.playwright_fixtures",
     "fixtures.app_fixtures",
+    "fixtures.api_fixtures",
 ]

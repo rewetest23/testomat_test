@@ -3,7 +3,7 @@ import pytest
 from src.web.app import App
 
 
-@pytest.mark.skip("in app_fixtures.py as last run")
+@pytest.mark.skip("run after all tests are done")
 def test_delete_all_projects_with_one_user_in_team(shared_logged_in_app: App):
     app = shared_logged_in_app
 

@@ -12,6 +12,7 @@ class Config:
     sign_in_url: str
     email: str
     password: str
+    general_api_token: str
 
 @pytest.fixture(scope="session")
 def configs():
@@ -20,5 +21,6 @@ def configs():
         base_app_url=os.getenv("BASE_APP_URL"),
         sign_in_url=f"{os.getenv('BASE_APP_URL')}/users/sign_in",
         email=os.getenv("EMAIL"),
-        password=os.getenv("PASSWORD")
+        password=os.getenv("PASSWORD"),
+        general_api_token=os.getenv("GENERAL_API_TOKEN")
     )
