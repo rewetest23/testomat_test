@@ -1,4 +1,5 @@
 import requests
+from src.api.models import ProjectsResponse
 
 class ApiClient:
     def __init__(self, base_url: str):
@@ -18,7 +19,7 @@ class ApiClient:
         self.session.headers.update({"Authorization": self.jwt})
         return self.jwt
 
-    def get_projects(self) -> dict:
+    def get_projects(self) -> ProjectsResponse:
         """Get all projects for the user. Requires authentication."""
         if not self.jwt:
             raise ValueError("Not authenticated. Please call login_with_api_token() first.")
@@ -29,7 +30,7 @@ class ApiClient:
         if not response.ok:
             raise RuntimeError(f"Failed to get projects: {response.status_code} - {response.text}")
             
-        return response.json()
+        return ProjectsResponse.from_dict(response.json())
 
     def get_project_users(self, project_id: str) -> list:
         """Get all users for a specific project. Requires authentication."""

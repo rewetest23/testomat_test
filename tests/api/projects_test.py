@@ -1,9 +1,8 @@
 import pytest
 
 from src.api.client import ApiClient
+from src.api.models import ProjectsResponse
 
-
-@pytest.mark.api
 def test_get_projects(api_client: ApiClient):
     """
     Test that the get_projects endpoint returns a successful response
@@ -11,12 +10,12 @@ def test_get_projects(api_client: ApiClient):
     """
     response = api_client.get_projects()
 
-    # Assert that the response is a dictionary
-    assert isinstance(response, dict)
+    # Assert that the response is of type ProjectsResponse
+    assert isinstance(response, ProjectsResponse)
 
-    # JSON:API responses usually have a 'data' array
-    assert "data" in response
-    assert isinstance(response["data"], list)
+    # Assert that data is a list
+    assert isinstance(response.data, list)
 
     # Print the number of projects found for debugging purposes
-    print(f"Found {len(response['data'])} projects.")
+    print(f"Found {len(response.data)} projects.")
+

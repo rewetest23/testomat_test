@@ -18,10 +18,10 @@ def api_cleanup_projects(api_client: ApiClient):
     yield
     try:
         response = api_client.get_projects()
-        projects = response.get("data", [])
+        projects = response.data
         
         for project in projects:
-            project_id = project.get("id")
+            project_id = project.id
             if not project_id:
                 continue
                 
