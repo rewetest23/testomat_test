@@ -1,5 +1,6 @@
 import requests
-from src.api.models import ProjectsResponse
+from typing import List
+from src.api.models import Project
 
 class ApiClient:
     def __init__(self, base_url: str):
@@ -19,7 +20,7 @@ class ApiClient:
         self.session.headers.update({"Authorization": self.jwt})
         return self.jwt
 
-    def get_projects(self) -> ProjectsResponse:
+    def get_projects(self) -> List[Project]:
         """Get all projects for the user. Requires authentication."""
         if not self.jwt:
             raise ValueError("Not authenticated. Please call login_with_api_token() first.")
@@ -30,7 +31,7 @@ class ApiClient:
         if not response.ok:
             raise RuntimeError(f"Failed to get projects: {response.status_code} - {response.text}")
             
-        return ProjectsResponse.from_dict(response.json())
+        return [Project.from_dict(p) for p in response.json().get("data", [])]
 
     def get_project_users(self, project_id: str) -> list:
         """Get all users for a specific project. Requires authentication."""
@@ -44,6 +45,24 @@ class ApiClient:
             raise RuntimeError(f"Failed to get users for project {project_id}: {response.status_code} - {response.text}")
             
         return response.json().get("data", [])
+
+    def get_suites(self, project_id: str) -> list:
+        """Get all suites for a specific project. Requires authentication."""
+        if not self.jwt:
+            raise ValueError("Not authenticated. Please call login_with_api_token() first.")
+            
+        url = f"{self.base_url}/api/{project_id}/suites"
+        response = self.session.get(url)
+        
+        if not response.ok:
+            raise RuntimeError(f"Failed to get suites for project {project_id}: {response.status_code} - {response.text}")
+            
+        return response.json().get("data", [])
+
+    def get_projects_with_suites(self) -> List[Project]:
+        """Get a list of projects that have at least one suite."""
+        all_projects = self.get_projects()
+        return [project for project in all_projects if self.get_suites(project.id)]
 
     def delete_project(self, project_id: str) -> None:
         """Delete a specific project by its ID. Requires authentication."""

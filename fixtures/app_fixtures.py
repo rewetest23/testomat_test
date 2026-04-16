@@ -9,9 +9,11 @@ from fixtures.playwright_fixtures import create_context_and_page
 from src.web.app import App
 
 
+import re
+
 @pytest.fixture(scope="session")
 def session_storage_state(browser: Browser, browser_context_args: dict, configs: Config) -> str:
-    """Perform login once per session using the POM and save the storage state."""
+    """Perform login once per session via API request and save the storage state."""
     auth_dir = "test-result/.auth"
     auth_path = os.path.join(auth_dir, "storage_state.json")
 
@@ -20,13 +22,29 @@ def session_storage_state(browser: Browser, browser_context_args: dict, configs:
 
     # Create an isolated context for login (no base storage_state here)
     context = browser.new_context(**browser_context_args)
-    page = context.new_page()
-    app = App(page)
 
-    app.login_page.open()
-    app.login_page.is_loaded()
-    app.login_page.login_user(configs.email, configs.password)
-    app.projects_page.is_loaded()
+    # Get CSRF token via API request
+    response = context.request.get(configs.sign_in_url)
+    text = response.text()
+    
+    match = re.search(r'name="authenticity_token" value="(.*?)"', text)
+    if not match:
+        raise RuntimeError("Could not find authenticity token on login page")
+    csrf_token = match.group(1)
+
+    # Login via Post request instead of UI
+    login_response = context.request.post(
+        configs.sign_in_url,
+        form={
+            "authenticity_token": csrf_token,
+            "user[email]": configs.email,
+            "user[password]": configs.password,
+            "user[remember_me]": "1"
+        }
+    )
+    
+    if login_response.status not in (200, 302, 303):
+        raise RuntimeError(f"API Login failed with status: {login_response.status}")
 
     # Save session state
     context.storage_state(path=auth_path)

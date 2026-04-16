@@ -1,12 +1,14 @@
 from playwright.sync_api import Page
 
-from src.web.pages.home_page import HomePage
-from src.web.pages.login_page import LoginPage
-from src.web.pages.new_projects_page import NewProjectsPage
-from src.web.pages.project_page import ProjectPage
-from src.web.pages.project_settings_page import ProjectSettingsPage
-from src.web.pages.projects_page import ProjectsPage
-from src.web.pages.requirements_page import RequirementsPage
+from src.web.pages import (
+    HomePage,
+    LoginPage,
+    NewProjectsPage,
+    ProjectPage,
+    ProjectSettingsPage,
+    ProjectsPage,
+    RequirementsPage,
+)
 
 
 class App:

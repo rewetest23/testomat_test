@@ -1,5 +1,5 @@
 from src.web.app import App
-from src.web.components.project_card_component import Badges
+from src.web.components import Badges
 
 
 def test_projects_page_header(shared_logged_in_app: App):
