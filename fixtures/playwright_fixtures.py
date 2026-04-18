@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from playwright.sync_api import Browser, BrowserContext, Page
 
@@ -5,13 +7,17 @@ from fixtures.config import Config
 
 
 @pytest.fixture(scope="session")
-def browser_type_launch_args(browser_type_launch_args: dict) -> dict:
-    return {
+def browser_type_launch_args(browser_type_launch_args: dict, browser_name: str) -> dict:
+    launch_args = {
         **browser_type_launch_args,
         "headless": False,
         "slow_mo": 0,
         "timeout": 30000,
     }
+    channel = os.getenv("BROWSER_CHANNEL")  # e.g. "chrome", "msedge"
+    if channel and browser_name == "chromium":
+        launch_args["channel"] = channel
+    return launch_args
 
 
 @pytest.fixture(scope="session")

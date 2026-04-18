@@ -1,9 +1,6 @@
 import os
 from dataclasses import dataclass
 import pytest
-from dotenv import load_dotenv
-
-load_dotenv()
 
 @dataclass(frozen=True)
 class Config:
@@ -19,7 +16,7 @@ def configs():
     return Config(
         base_url=os.getenv("BASE_URL"),
         base_app_url=os.getenv("BASE_APP_URL"),
-        sign_in_url=f"{os.getenv('BASE_APP_URL')}/users/sign_in",
+        sign_in_url=os.getenv('SIGN_IN_URL'),
         email=os.getenv("EMAIL"),
         password=os.getenv("PASSWORD"),
         general_api_token=os.getenv("GENERAL_API_TOKEN")
