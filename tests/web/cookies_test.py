@@ -6,18 +6,18 @@ from src.web.app import App
 
 @pytest.mark.smoke
 @pytest.mark.web
-def test_add_feature_flag_cookie(logged_in_app: App, cookies: CookieHelper):
+def test_add_feature_flag_cookie(app: App, cookies: CookieHelper):
     cookies.add("feature_flag", "dark_mode_enabled", "app.testomat.io")
 
     assert cookies.exists("feature_flag")
     assert cookies.get_value("feature_flag") == "dark_mode_enabled"
-    logged_in_app.page.reload()
+    app.page.reload()
 
     # do some staff
 
 
 @pytest.mark.web
-def test_clear_feature_flag_cookie(logged_in_app: App, cookies: CookieHelper):
+def test_clear_feature_flag_cookie(app: App, cookies: CookieHelper):
     """Verify that a feature flag cookie can be cleared."""
     cookies.add("feature_flag", "beta_feature", "app.testomat.io")
     assert cookies.exists("feature_flag")
@@ -29,7 +29,7 @@ def test_clear_feature_flag_cookie(logged_in_app: App, cookies: CookieHelper):
 
 
 @pytest.mark.web
-def test_add_multiple_feature_flags(logged_in_app: App, cookies: CookieHelper):
+def test_add_multiple_feature_flags(app: App, cookies: CookieHelper):
     """Verify that multiple feature flag cookies can be added."""
     cookies.add("feature_dark_mode", "enabled", "app.testomat.io")
     cookies.add("feature_new_ui", "disabled", "app.testomat.io")

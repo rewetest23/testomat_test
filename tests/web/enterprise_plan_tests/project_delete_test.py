@@ -4,8 +4,7 @@ from src.web.app import App
 
 
 @pytest.mark.skip("run after all tests are done")
-def test_delete_all_projects_with_one_user_in_team(logged_in_app: App):
-    app = logged_in_app
+def test_delete_all_projects_with_one_user_in_team(app: App):
 
     (app.projects_page
      .navigate()

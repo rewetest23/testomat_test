@@ -1,5 +1,4 @@
 import json
-import os
 import re
 from pathlib import Path
 
@@ -11,35 +10,18 @@ from fixtures.cookie_helper import CookieHelper
 from fixtures.playwright_fixtures import create_context_and_page
 from src.web.app import App
 
-STORAGE_STATE_PATH = Path("test-result/.auth/storage_state.json")
-FREE_PROJECT_STORAGE_PATH = Path("test-result/.auth/free_project_state.json")
+STORAGE_STATE_DIR = Path("test-result/.auth")
+STORAGE_STATE_PATH = STORAGE_STATE_DIR / "storage_state.json"
+FREE_PROJECT_STORAGE_PATH = STORAGE_STATE_DIR / "free_project_state.json"
 
 
-def create_free_project_state() -> None:
-    """Create free project state by copying storage state with empty company_id."""
-    if not STORAGE_STATE_PATH.exists():
-        return
+def _perform_login_and_save_both_states(
+    browser: Browser, browser_context_args: dict, configs: Config
+) -> None:
+    """Perform login once via API and save both storage states (app + free_project)."""
+    STORAGE_STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-    state = json.loads(STORAGE_STATE_PATH.read_text())
-    for cookie in state.get("cookies", []):
-        if cookie.get("name") == "company_id":
-            cookie["value"] = ""
-            break
-
-    FREE_PROJECT_STORAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    FREE_PROJECT_STORAGE_PATH.write_text(json.dumps(state, indent=2))
-
-
-@pytest.fixture(scope="session")
-def session_storage_state(browser: Browser, browser_context_args: dict, configs: Config) -> str:
-    """Perform login once per session via API request and save the storage state."""
-    auth_dir = "test-result/.auth"
-    auth_path = os.path.join(auth_dir, "storage_state.json")
-
-    # Ensure directory exists
-    os.makedirs(auth_dir, exist_ok=True)
-
-    # Create an isolated context for login (no base storage_state here)
+    # Create an isolated context for login
     context = browser.new_context(**browser_context_args)
 
     # Get CSRF token via API request
@@ -51,36 +33,98 @@ def session_storage_state(browser: Browser, browser_context_args: dict, configs:
         raise RuntimeError("Could not find authenticity token on login page")
     csrf_token = match.group(1)
 
-    # Login via Post request instead of UI
+    # Login via POST request instead of UI
     login_response = context.request.post(
         configs.sign_in_url,
         form={
             "authenticity_token": csrf_token,
             "user[email]": configs.email,
             "user[password]": configs.password,
-            "user[remember_me]": "1"
-        }
+            "user[remember_me]": "1",
+        },
     )
 
     if login_response.status not in (200, 302, 303):
         raise RuntimeError(f"API Login failed with status: {login_response.status}")
 
-    # Save session state
-    context.storage_state(path=auth_path)
+    # Save the main (enterprise/company) storage state
+    context.storage_state(path=str(STORAGE_STATE_PATH))
+
+    # Derive free project state: copy state with empty company_id
+    state = json.loads(STORAGE_STATE_PATH.read_text())
+    for cookie in state.get("cookies", []):
+        if cookie.get("name") == "company_id":
+            cookie["value"] = ""
+            break
+    FREE_PROJECT_STORAGE_PATH.write_text(json.dumps(state, indent=2))
+
     context.close()
-    return auth_path
+
+
+def _ensure_storage_states(
+    browser: Browser, browser_context_args: dict, configs: Config
+) -> None:
+    """Ensure both storage state files exist; perform login if either is missing."""
+    if not STORAGE_STATE_PATH.exists() or not FREE_PROJECT_STORAGE_PATH.exists():
+        _perform_login_and_save_both_states(browser, browser_context_args, configs)
+
+
+# ---------------------------------------------------------------------------
+# App fixtures (enterprise / with company)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="function")
+def app(
+    browser: Browser, browser_context_args: dict, configs: Config
+) -> App:
+    """Logged-in App with company context (enterprise). Reuses cached storage state."""
+    _ensure_storage_states(browser, browser_context_args, configs)
+
+    context_args = {**browser_context_args, "storage_state": str(STORAGE_STATE_PATH)}
+    context, page = create_context_and_page(browser, context_args)
+    app = App(page)
+    yield app
+    context.close()
 
 
 @pytest.fixture(scope="function")
-def app(page: Page) -> App:
-    """Fresh App instance per test (new context + page via pytest-playwright)."""
-    return App(page)
+def unauthenticated_app(browser: Browser, browser_context_args: dict) -> App:
+    """Fresh App instance without any auth state (for login-flow tests)."""
+    context, page = create_context_and_page(browser, browser_context_args)
+    app = App(page)
+    yield app
+    context.close()
 
+
+# ---------------------------------------------------------------------------
+# Free-project App fixtures (no company)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="function")
+def free_project_app(
+    browser: Browser, browser_context_args: dict, configs: Config
+) -> App:
+    """Logged-in App without company context (free project). Reuses cached storage state."""
+    _ensure_storage_states(browser, browser_context_args, configs)
+
+    context_args = {**browser_context_args, "storage_state": str(FREE_PROJECT_STORAGE_PATH)}
+    context, page = create_context_and_page(browser, context_args)
+    app = App(page)
+    yield app
+    context.close()
+
+
+# ---------------------------------------------------------------------------
+# Shared (module-scoped) variants
+# ---------------------------------------------------------------------------
 
 @pytest.fixture(scope="module")
-def _shared_context(browser: Browser, browser_context_args: dict) -> tuple[BrowserContext, Page]:
-    """Module-scoped: creates one context + page, closed at module end."""
-    context, page = create_context_and_page(browser, browser_context_args)
+def _shared_context(browser: Browser, browser_context_args: dict, configs: Config) -> tuple[BrowserContext, Page]:
+    """Module-scoped: creates one logged-in context + page, closed at module end."""
+    _ensure_storage_states(browser, browser_context_args, configs)
+
+    context_args = {**browser_context_args, "storage_state": str(STORAGE_STATE_PATH)}
+    context, page = create_context_and_page(browser, context_args)
     yield context, page
     context.close()
 
@@ -97,37 +141,24 @@ def shared_app(_shared_context: tuple[BrowserContext, Page]) -> App:
     page.evaluate("window.sessionStorage.clear()")
 
 
-@pytest.fixture(scope="function")
-def logged_in_app(browser: Browser, browser_context_args: dict, session_storage_state: str) -> App:
-    """Fresh App instance that is already logged in using storage state."""
-    # Use the pre-saved storage state
-    context_args = {**browser_context_args, "storage_state": session_storage_state}
-    context, page = create_context_and_page(browser, context_args)
-    app = App(page)
-    yield app
-    context.close()
-
-
 @pytest.fixture(scope="module")
-def shared_logged_in_app(browser: Browser, browser_context_args: dict, session_storage_state: str) -> App:
+def shared_logged_in_app(browser: Browser, browser_context_args: dict, configs: Config) -> App:
     """Shared App instance, logged in once for the entire module via storage state."""
-    # Use the pre-saved storage state
-    context_args = {**browser_context_args, "storage_state": session_storage_state}
+    _ensure_storage_states(browser, browser_context_args, configs)
+
+    context_args = {**browser_context_args, "storage_state": str(STORAGE_STATE_PATH)}
     context, page = create_context_and_page(browser, context_args)
     app = App(page)
     yield app
     context.close()
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 @pytest.fixture(scope="function")
-def cookies(logged_in_app: App) -> CookieHelper:
+def cookies(app: App) -> CookieHelper:
     """Provides cookie manipulation helper for the logged-in context."""
-    return CookieHelper(logged_in_app.page.context)
+    return CookieHelper(app.page.context)
 
-
-@pytest.fixture(scope="function")
-def login(app: App, configs: Config):
-    """Log in using the function-scoped app (legacy helper)."""
-    app.login_page.open()
-    app.login_page.is_loaded()
-    app.login_page.login_user(configs.email, configs.password)

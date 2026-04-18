@@ -1,8 +1,7 @@
 from src.web.app import App
 
 
-def test_fields_validation_new_text_requirement_in_new_project(logged_in_app: App, faker):
-    app = logged_in_app
+def test_fields_validation_new_text_requirement_in_new_project(app: App, faker):
     target_project_name = faker.company()
 
     (app.new_projects_page
@@ -33,8 +32,7 @@ def test_fields_validation_new_text_requirement_in_new_project(logged_in_app: Ap
      .save_button_is_disabled())
 
 
-def test_close_new_requirement_panel(logged_in_app: App, faker):
-    app = logged_in_app
+def test_close_new_requirement_panel(app: App, faker):
     target_project_name = faker.company()
 
     (app.new_projects_page
@@ -80,8 +78,7 @@ def test_close_new_requirement_panel(logged_in_app: App, faker):
      .is_hidden())
 
 
-def test_create_requirement(logged_in_app: App, faker):
-    app = logged_in_app
+def test_create_requirement(app: App, faker):
     target_project_name = faker.company()
     requirement_title = faker.catch_phrase()
 
@@ -143,8 +140,7 @@ def test_create_requirement(logged_in_app: App, faker):
      .requirement_is_in_list(requirement_title))
 
 
-def test_search_and_open_requirement(logged_in_app: App):
-    app = logged_in_app
+def test_search_and_open_requirement(app: App):
     project_name = "Gray Group"
     requirement_title = "Expanded asymmetric synergy"
 
