@@ -11,6 +11,7 @@ from fixtures.playwright_fixtures import create_context_and_page
 from src.web.app import App
 
 STORAGE_STATE_DIR = Path("test-result/.auth")
+TRACES_DIR = Path("test-result/traces")
 STORAGE_STATE_PATH = STORAGE_STATE_DIR / "storage_state.json"
 FREE_PROJECT_STORAGE_PATH = STORAGE_STATE_DIR / "free_project_state.json"
 
@@ -61,6 +62,22 @@ def _perform_login_and_save_both_states(
     context.close()
 
 
+def _start_tracing(context: BrowserContext) -> None:
+    """Start Playwright tracing with screenshots, snapshots and sources."""
+    context.tracing.start(screenshots=True, snapshots=True, sources=True)
+
+
+def _stop_tracing(context: BrowserContext, request: pytest.FixtureRequest) -> None:
+    """Stop tracing and save the trace ZIP only if the test failed."""
+    failed = hasattr(request.node, "rep_call") and request.node.rep_call.failed
+    if failed:
+        trace_path = TRACES_DIR / f"{request.node.name}.zip"
+        trace_path.parent.mkdir(parents=True, exist_ok=True)
+        context.tracing.stop(path=str(trace_path))
+    else:
+        context.tracing.stop()
+
+
 def _ensure_storage_states(
     browser: Browser, browser_context_args: dict, configs: Config
 ) -> None:
@@ -75,24 +92,32 @@ def _ensure_storage_states(
 
 @pytest.fixture(scope="function")
 def app(
-    browser: Browser, browser_context_args: dict, configs: Config
+    browser: Browser, browser_context_args: dict, configs: Config,
+    request: pytest.FixtureRequest,
 ) -> App:
     """Logged-in App with company context (enterprise). Reuses cached storage state."""
     _ensure_storage_states(browser, browser_context_args, configs)
 
     context_args = {**browser_context_args, "storage_state": str(STORAGE_STATE_PATH)}
     context, page = create_context_and_page(browser, context_args)
+    _start_tracing(context)
     app = App(page)
     yield app
+    _stop_tracing(context, request)
     context.close()
 
 
 @pytest.fixture(scope="function")
-def unauthenticated_app(browser: Browser, browser_context_args: dict) -> App:
+def unauthenticated_app(
+    browser: Browser, browser_context_args: dict,
+    request: pytest.FixtureRequest,
+) -> App:
     """Fresh App instance without any auth state (for login-flow tests)."""
     context, page = create_context_and_page(browser, browser_context_args)
+    _start_tracing(context)
     app = App(page)
     yield app
+    _stop_tracing(context, request)
     context.close()
 
 
@@ -102,15 +127,18 @@ def unauthenticated_app(browser: Browser, browser_context_args: dict) -> App:
 
 @pytest.fixture(scope="function")
 def free_project_app(
-    browser: Browser, browser_context_args: dict, configs: Config
+    browser: Browser, browser_context_args: dict, configs: Config,
+    request: pytest.FixtureRequest,
 ) -> App:
     """Logged-in App without company context (free project). Reuses cached storage state."""
     _ensure_storage_states(browser, browser_context_args, configs)
 
     context_args = {**browser_context_args, "storage_state": str(FREE_PROJECT_STORAGE_PATH)}
     context, page = create_context_and_page(browser, context_args)
+    _start_tracing(context)
     app = App(page)
     yield app
+    _stop_tracing(context, request)
     context.close()
 
 
