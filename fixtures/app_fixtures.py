@@ -1,4 +1,7 @@
+import json
 import os
+import re
+from pathlib import Path
 
 import pytest
 from playwright.sync_api import Page, Browser, BrowserContext
@@ -8,8 +11,24 @@ from fixtures.cookie_helper import CookieHelper
 from fixtures.playwright_fixtures import create_context_and_page
 from src.web.app import App
 
+STORAGE_STATE_PATH = Path("test-result/.auth/storage_state.json")
+FREE_PROJECT_STORAGE_PATH = Path("test-result/.auth/free_project_state.json")
 
-import re
+
+def create_free_project_state() -> None:
+    """Create free project state by copying storage state with empty company_id."""
+    if not STORAGE_STATE_PATH.exists():
+        return
+
+    state = json.loads(STORAGE_STATE_PATH.read_text())
+    for cookie in state.get("cookies", []):
+        if cookie.get("name") == "company_id":
+            cookie["value"] = ""
+            break
+
+    FREE_PROJECT_STORAGE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    FREE_PROJECT_STORAGE_PATH.write_text(json.dumps(state, indent=2))
+
 
 @pytest.fixture(scope="session")
 def session_storage_state(browser: Browser, browser_context_args: dict, configs: Config) -> str:
@@ -26,7 +45,7 @@ def session_storage_state(browser: Browser, browser_context_args: dict, configs:
     # Get CSRF token via API request
     response = context.request.get(configs.sign_in_url)
     text = response.text()
-    
+
     match = re.search(r'name="authenticity_token" value="(.*?)"', text)
     if not match:
         raise RuntimeError("Could not find authenticity token on login page")
@@ -42,7 +61,7 @@ def session_storage_state(browser: Browser, browser_context_args: dict, configs:
             "user[remember_me]": "1"
         }
     )
-    
+
     if login_response.status not in (200, 302, 303):
         raise RuntimeError(f"API Login failed with status: {login_response.status}")
 

@@ -7,12 +7,13 @@ class TestEditModal:
     def __init__(self, page: Page):
         self.page = page
 
-        self.heading = page.get_by_role("heading", name="Edit Test")
+        # The main wrapper that contains BOTH the header (save/back buttons) and the content
+        self.container = page.locator(".detail-view-resizable")
 
-        self.save_button = page.get_by_role("button", name="Save")
-        self.go_back_button = page.get_by_role("button", name="Go Back")
-
-        self.title = page.get_by_role("combobox", name="Title")
+        self.heading = self.container.get_by_role("heading", name="Edit Test")
+        self.save_button = self.container.get_by_role("button", name="Save")
+        self.go_back_button = self.container.get_by_role("button", name="Go Back")
+        self.title = self.container.get_by_role("combobox", name="Title")
 
     def is_loaded(self) -> Self:
         expect(self.heading).to_be_visible()

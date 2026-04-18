@@ -6,8 +6,8 @@ from src.web.app import App
 
 @pytest.mark.smoke
 @pytest.mark.web
-def test_new_projects_creation(shared_logged_in_app: App, faker):
-    app = shared_logged_in_app
+def test_new_projects_creation(logged_in_app: App, faker):
+    app = logged_in_app
     target_project_name = faker.company()
 
     (app.new_projects_page

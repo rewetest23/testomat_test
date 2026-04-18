@@ -2,8 +2,8 @@ from src.web.app import App
 from src.web.components import Badges
 
 
-def test_projects_page_header(shared_logged_in_app: App):
-    app = shared_logged_in_app
+def test_projects_page_header(logged_in_app: App):
+    app = logged_in_app
     (app.projects_page
      .navigate()
      .is_loaded()
