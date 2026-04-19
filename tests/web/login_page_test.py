@@ -1,8 +1,8 @@
 import pytest
 from faker import Faker
 
-from conftest import Config
-from src.web.App import App
+from fixtures.config import Config
+from src.web.app import App
 
 fake = Faker()
 
@@ -24,21 +24,24 @@ invalid_login_data = [
 @pytest.mark.regression
 @pytest.mark.parametrize("email, password", invalid_login_data)
 def test_login_invalid(shared_app: App, email: str, password: str):
-    shared_app.login_page.wait_if_rate_limit(5000)
-    shared_app.login_page.open()
-    shared_app.login_page.is_loaded()
-    shared_app.login_page.login_user(email, password)
-    shared_app.login_page.invalid_login_message_visible()
+    (shared_app.login_page
+     .wait_if_rate_limit(5000)
+     .open()
+     .is_loaded()
+     .login_user(email, password)
+     .invalid_login_message_visible())
 
 
 
 @pytest.mark.regression
-def test_login_valid_password(app: App, configs: Config):
-    app.home_page.open()
-    app.home_page.is_loaded()
-    app.home_page.click_login()
+def test_login_valid_password(unauthenticated_app: App, configs: Config):
+    (unauthenticated_app.home_page
+     .open()
+     .is_loaded()
+     .click_login())
 
-    app.login_page.is_loaded()
-    app.login_page.login_user(configs.email, configs.password)
+    (unauthenticated_app.login_page
+     .is_loaded()
+     .login_user(configs.email, configs.password))
 
-    app.projects_page.is_loaded()
+    unauthenticated_app.projects_page.is_loaded()

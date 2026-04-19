@@ -19,35 +19,35 @@ class RequirementsPage:
         self.new_requirement_panel = NewRequirementComponent(page)
         self.requirement_details_panel = RequirementDetailsComponent(page)
 
-        self.__breadcrumbs = page.locator(".breadcrumbs-page")
-        self.__add_requirement_button = page.locator("a", has_text="Add Requirement")
-        self.__chat_with_requirements_button = page.get_by_role("button", name="Chat with Requirements")
+        self.breadcrumbs = page.locator(".breadcrumbs-page")
+        self.add_requirement_button = page.locator("a", has_text="Add Requirement")
+        self.chat_with_requirements_button = page.get_by_role("button", name="Chat with Requirements")
         
-        self.__empty_state_header = page.get_by_role("heading", name="Requirements")
-        self.__empty_state_text = page.get_by_text("No requirements yet! Create your first requirement to get started.")
-        self.__new_requirements_button = page.locator("a", has_text="New Requirements")
+        self.empty_state_header = page.get_by_role("heading", name="Requirements")
+        self.empty_state_text = page.get_by_text("No requirements yet! Create your first requirement to get started.")
+        self.new_requirements_button = page.locator("a", has_text="New Requirements")
 
     def is_loaded(self) -> Self:
-        expect(self.__breadcrumbs).to_be_visible()
+        expect(self.breadcrumbs).to_be_visible()
         self.filter_bar.is_loaded()
-        expect(self.__add_requirement_button).to_be_visible()
+        expect(self.add_requirement_button).to_be_visible()
         return self
 
     def empty_state_is_visible(self) -> Self:
-        expect(self.__empty_state_header).to_be_visible()
-        expect(self.__empty_state_text).to_be_visible()
+        expect(self.empty_state_header).to_be_visible()
+        expect(self.empty_state_text).to_be_visible()
         return self
 
     def click_add_requirement(self) -> Self:
-        self.__add_requirement_button.click()
+        self.add_requirement_button.click()
         return self
 
     def click_chat_with_requirements(self) -> Self:
-        self.__chat_with_requirements_button.click()
+        self.chat_with_requirements_button.click()
         return self
 
     def click_new_requirements(self) -> Self:
-        self.__new_requirements_button.click()
+        self.new_requirements_button.click()
         return self
         
     def requirement_is_in_list(self, title: str) -> Self:

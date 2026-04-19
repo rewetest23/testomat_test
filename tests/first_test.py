@@ -2,7 +2,7 @@ import pytest
 from faker import Faker
 from playwright.sync_api import Page, expect
 
-from conftest import Config
+from fixtures.config import Config
 
 TARGET_PROJECT = "nbb"
 DEMO_PROJECT = "Cypress Demo Project"
