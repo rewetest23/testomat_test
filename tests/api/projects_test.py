@@ -1,6 +1,5 @@
-import pytest
-
 from src.api.client import ApiClient
+
 
 def test_get_projects(api_client: ApiClient):
     """
@@ -14,4 +13,3 @@ def test_get_projects(api_client: ApiClient):
 
     # Print the number of projects found for debugging purposes
     print(f"Found {len(projects)} projects.")
-
