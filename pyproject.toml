@@ -12,6 +12,7 @@ dependencies = [
     "pytest==9.0.2",
     "python-dotenv==1.2.2",
     "requests>=2.33.1",
+    "selenium>=4.43.0",
 ]
 
 [tool.pytest.ini_options]

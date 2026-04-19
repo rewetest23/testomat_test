@@ -16,6 +16,7 @@ pytest_plugins = [
     "fixtures.playwright_fixtures",
     "fixtures.app_fixtures",
     "fixtures.api_fixtures",
+    "fixtures.selenium_fixtures",
 ]
 
 
